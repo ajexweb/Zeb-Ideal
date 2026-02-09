@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeb Admin | Command Center</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg: #F8FAFC;
+            --sidebar: #ffffff;
+            --text-main: #0f172a;
+            --text-light: #64748b;
+            --primary: #0F52BA;
+            --accent: #D6E6F3;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --sidebar: #1e293b;
+            --text-main: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --accent: #1e293b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body { background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; }
+
+        /* --- Auth Overlay --- */
+        #auth-overlay {
+            position: fixed; inset: 0; background: var(--bg); z-index: 9999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .pin-box {
+            background: var(--sidebar); padding: 40px; border-radius: 20px;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border);
+        }
+        .pin-input {
+            font-size: 2rem; letter-spacing: 12px; text-align: center; width: 100%;
+            padding: 10px; margin: 20px 0; border: 2px solid var(--border); border-radius: 10px;
+            background: transparent; color: var(--text-main); outline: none;
+        }
+        .pin-input:focus { border-color: var(--primary); }
+
+        /* --- Navbar --- */
+        nav {
+            background: var(--sidebar); border-bottom: 1px solid var(--border);
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .brand { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--primary); }
+
+        /* --- Layout --- */
+        .wrapper { max-width: 1400px; margin: 0 auto; padding: 30px; width: 100%; display: none; /* Hidden until auth */ }
+
+        /* Stats */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card {
+            background: var(--sidebar); padding: 20px; border-radius: 12px; border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .stat-icon {
+            width: 45px; height: 45px; border-radius: 10px; background: var(--accent);
+            display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.2rem;
+        }
+
+        /* Main Grid */
+        .main-grid { display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
+        
+        /* Form */
+        .editor { background: var(--sidebar); padding: 25px; border-radius: 16px; border: 1px solid var(--border); position: sticky; top: 100px; height: fit-content; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-light); }
+        input, select, textarea {
+            width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-main); outline: none; transition: 0.2s;
+        }
+        input:focus, textarea:focus { border-color: var(--primary); }
+        textarea { resize: vertical; min-height: 150px; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn {
+            background: transparent; border: 1px solid var(--border); color: var(--text-light);
+            padding: 8px 20px; border-radius: 50px; cursor: pointer; transition: 0.2s;
+        }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Lists */
+        .list-container { display: flex; flex-direction: column; gap: 15px; }
+        .item-card {
+            background: var(--sidebar); padding: 20px; border-radius: 12px; border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: start; transition: transform 0.2s;
+        }
+        .item-card:hover { border-color: var(--primary); }
+        
+        .badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; background: var(--accent); color: var(--primary); font-weight: 700; text-transform: uppercase; }
+        
+        .actions { display: flex; gap: 10px; }
+        .btn-icon {
+            width: 32px; height: 32px; border-radius: 6px; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .btn-edit { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .btn-edit:hover { background: var(--success); color: white; }
+        .btn-del { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .btn-del:hover { background: var(--danger); color: white; }
+
+        /* Buttons */
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; justify-content: center; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-ghost { background: transparent; color: var(--text-light); }
+        .btn-ghost:hover { color: var(--text-main); }
+
+        /* Responsive */
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Authentication -->
+    <div id="auth-overlay">
+        <div class="pin-box">
+            <h2 style="color: var(--primary);">Zeb Ideal</h2>
+            <p style="color: var(--text-light); margin-bottom: 10px;">Security Clearance</p>
+            <input type="password" id="pin" class="pin-input" maxlength="4" placeholder="••••">
+            <button class="btn btn-primary" onclick="checkPin()">Unlock Panel</button>
+            <p id="error-msg" style="color: var(--danger); margin-top: 15px; font-size: 0.9rem; min-height: 20px;"></p>
+        </div>
+    </div>
+
+    <!-- 2. Navbar -->
+    <nav>
+        <div class="brand"><i class="fas fa-rocket"></i> Zeb Admin</div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-ghost" onclick="toggleTheme()" title="Dark Mode"><i class="fas fa-moon"></i></button>
+            <button class="btn btn-ghost" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </nav>
+
+    <!-- 3. Dashboard Content -->
+    <div class="wrapper" id="dashboard">
+        
+        <!-- Stats Row -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-lightbulb"></i></div>
+                <div><h3 id="count-ideas">0</h3><span style="font-size:0.8rem; color:var(--text-light)">Total Ideas</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color:var(--success);"><i class="fas fa-envelope"></i></div>
+                <div><h3 id="count-msgs">0</h3><span style="font-size:0.8rem; color:var(--text-light)">Inquiries</span></div>
+            </div>
+            <div class="stat-card" style="cursor: pointer;" onclick="exportData()">
+                <div class="stat-icon" style="color: #f59e0b;"><i class="fas fa-download"></i></div>
+                <div><h3>Export</h3><span style="font-size:0.8rem; color:var(--text-light)">Download CSV</span></div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            
+            <!-- LEFT: Editor Form -->
+            <div class="editor">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <h3 id="form-title">Upload Idea</h3>
+                    <button id="cancel-btn" onclick="resetForm()" style="display:none; font-size:0.8rem; border:none; background:none; color:var(--danger); cursor:pointer;">Cancel Edit</button>
+                </div>
+                
+                <form id="idea-form">
+                    <input type="hidden" id="edit-id">
+                    
+                    <div class="form-group">
+                        <label>Startup Title</label>
+                        <input type="text" id="title" required placeholder="Project Name">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category">
+                            <option value="Tech">Tech</option>
+                            <option value="Health">Health</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Food">Food</option>
+                            <option value="Social">Social</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Author</label>
+                        <input type="text" id="author" placeholder="Optional">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Blueprint Details</label>
+                        <textarea id="desc" required placeholder="Full explanation..."></textarea>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="btn btn-primary">
+                        <i class="fas fa-cloud-upload-alt"></i> Publish
+                    </button>
+                </form>
+            </div>
+
+            <!-- RIGHT: Content Lists -->
+            <div>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('ideas')">Manage Ideas</button>
+                    <button class="tab-btn" onclick="switchTab('messages')">Messages <span id="msg-badge" style="background:var(--danger); color:white; padding:2px 6px; border-radius:10px; font-size:0.7rem; display:none;">New</span></button>
+                </div>
+
+                <!-- Search Filter -->
+                <div style="margin-bottom: 15px; display:flex; gap:10px;">
+                    <input type="text" id="search" placeholder="Search..." onkeyup="filterList()">
+                </div>
+
+                <!-- Ideas List -->
+                <div id="ideas-list" class="list-container">
+                    <!-- JS Injected -->
+                </div>
+
+                <!-- Messages List (Hidden by default) -->
+                <div id="messages-list" class="list-container" style="display:none;">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkcBlyH2QPPZtGN5t9eqYmuQ_E9dGo4b0",
+            authDomain: "fir-bf6f1.firebaseapp.com",
+            databaseURL: "https://fir-bf6f1-default-rtdb.firebaseio.com",
+            projectId: "fir-bf6f1",
+            storageBucket: "fir-bf6f1.firebasestorage.app",
+            messagingSenderId: "432545170995",
+            appId: "1:432545170995:web:b6deccf31b79eb6ef1c546"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // State
+        let allIdeas = [];
+        let allMessages = [];
+        let currentTab = 'ideas';
+        let isEdit = false;
+
+        // --- AUTH ---
+        window.checkPin = () => {
+            if(document.getElementById('pin').value === "0009") {
+                sessionStorage.setItem('zebAuth', 'true');
+                init();
+            } else {
+                document.getElementById('error-msg').innerText = "Incorrect PIN";
+            }
+        };
+
+        window.logout = () => {
+            sessionStorage.removeItem('zebAuth');
+            location.reload();
+        };
+
+        if(sessionStorage.getItem('zebAuth')) init();
+
+        function init() {
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            fetchData();
+        }
+
+        // --- FETCH DATA ---
+        function fetchData() {
+            // Ideas
+            onValue(ref(db, 'ideas'), (snap) => {
+                const data = snap.val();
+                allIdeas = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
+                document.getElementById('count-ideas').innerText = allIdeas.length;
+                if(currentTab === 'ideas') renderList();
+            });
+
+            // Messages
+            onValue(ref(db, 'messages'), (snap) => {
+                const data = snap.val();
+                allMessages = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
+                document.getElementById('count-msgs').innerText = allMessages.length;
+                if(allMessages.length > 0) document.getElementById('msg-badge').style.display = 'inline-block';
+                if(currentTab === 'messages') renderList();
+            });
+        }
+
+        // --- RENDER ---
+        window.switchTab = (tab) => {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('ideas-list').style.display = tab === 'ideas' ? 'flex' : 'none';
+            document.getElementById('messages-list').style.display = tab === 'messages' ? 'flex' : 'none';
+            document.getElementById('form-title').innerText = tab === 'ideas' ? (isEdit ? 'Edit Idea' : 'Upload Idea') : 'View Only';
+            
+            renderList();
+        };
+
+        function renderList() {
+            const container = document.getElementById(currentTab === 'ideas' ? 'ideas-list' : 'messages-list');
+            const search = document.getElementById('search').value.toLowerCase();
+            container.innerHTML = '';
+
+            const data = currentTab === 'ideas' ? allIdeas : allMessages;
+            const filtered = data.filter(item => {
+                if(currentTab === 'ideas') return item.title.toLowerCase().includes(search);
+                else return item.name.toLowerCase().includes(search) || item.email.toLowerCase().includes(search);
+            });
+
+            if(filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-light)">No data found.</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item-card';
+                
+                if(currentTab === 'ideas') {
+                    div.innerHTML = `
+                        <div>
+                            <span class="badge">${item.category}</span>
+                            <h4 style="margin:5px 0;">${item.title}</h4>
+                            <p style="font-size:0.85rem; color:var(--text-light)">By: ${item.author || 'Anon'}</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn-icon btn-edit" onclick="editIdea('${item.id}')"><i class="fas fa-pen"></i></button>
+                            <button class="btn-icon btn-del" onclick="deleteItem('ideas', '${item.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div style="width:100%">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                <strong>${item.name}</strong>
+                                <span style="font-size:0.8rem; color:var(--text-light)">${new Date(item.timestamp).toLocaleDateString()}</span>
+                            </div>
+                            <div style="font-size:0.9rem; color:var(--primary); margin-bottom:5px;">${item.subject || 'No Subject'}</div>
+                            <p style="font-size:0.9rem; color:var(--text-main); background:var(--bg); padding:10px; border-radius:8px;">${item.message}</p>
+                            <a href="mailto:${item.email}" style="font-size:0.8rem; color:var(--primary); text-decoration:none; margin-top:5px; display:inline-block;">Reply: ${item.email}</a>
+                        </div>
+                        <div class="actions" style="margin-left:15px;">
+                            <button class="btn-icon btn-del" onclick="deleteItem('messages', '${item.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                }
+                container.appendChild(div);
+            });
+        }
+
+        window.filterList = renderList;
+
+        // --- FORM LOGIC ---
+        const form = document.getElementById('idea-form');
+        
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            const payload = {
+                title: document.getElementById('title').value,
+                category: document.getElementById('category').value,
+                author: document.getElementById('author').value,
+                description: document.getElementById('desc').value,
+                timestamp: isEdit ? allIdeas.find(i => i.id === document.getElementById('edit-id').value).timestamp : Date.now()
+            };
+
+            const promise = isEdit 
+                ? update(ref(db, `ideas/${document.getElementById('edit-id').value}`), payload)
+                : push(ref(db, 'ideas'), payload);
+
+            promise.then(() => {
+                alert(isEdit ? "Updated!" : "Published!");
+                resetForm();
+            }).catch(err => alert(err.message))
+              .finally(() => btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publish');
+        };
+
+        window.editIdea = (id) => {
+            const item = allIdeas.find(i => i.id === id);
+            if(!item) return;
+
+            document.getElementById('title').value = item.title;
+            document.getElementById('category').value = item.category;
+            document.getElementById('author').value = item.author;
+            document.getElementById('desc').value = item.description;
+            document.getElementById('edit-id').value = id;
+            
+            isEdit = true;
+            document.getElementById('submit-btn').innerHTML = '<i class="fas fa-save"></i> Update Idea';
+            document.getElementById('form-title').innerText = 'Edit Idea';
+            document.getElementById('cancel-btn').style.display = 'block';
+            
+            // Scroll to form
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        };
+
+        window.resetForm = () => {
+            form.reset();
+            isEdit = false;
+            document.getElementById('submit-btn').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publish';
+            document.getElementById('form-title').innerText = 'Upload Idea';
+            document.getElementById('cancel-btn').style.display = 'none';
+            document.getElementById('edit-id').value = '';
+        };
+
+        // --- DELETE ---
+        window.deleteItem = (node, id) => {
+            if(confirm("Are you sure? This cannot be undone.")) {
+                remove(ref(db, `${node}/${id}`));
+            }
+        };
+
+        // --- EXPORT ---
+        window.exportData = () => {
+            let csv = "Title,Category,Author,Description,Date\n";
+            allIdeas.forEach(i => {
+                const desc = i.description.replace(/(\r\n|\n|\r)/gm, " ");
+                csv += `"${i.title}",${i.category},"${i.author}","${desc}",${new Date(i.timestamp).toLocaleDateString()}\n`;
+            });
+            const link = document.createElement("a");
+            link.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+            link.download = "zeb_ideas_backup.csv";
+            link.click();
+        };
+
+        // --- THEME ---
+        window.toggleTheme = () => {
+            if(document.body.getAttribute('data-theme') === 'dark') document.body.removeAttribute('data-theme');
+            else document.body.setAttribute('data-theme', 'dark');
+        };
+    </script>
+</body>
+</html>

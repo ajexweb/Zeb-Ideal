@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeb Ideal | Future Startup Blueprints</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #D6E6F3; /* Ice Blue */
+            --card-bg: #ffffff;
+            --primary: #0F52BA; /* Sapphire */
+            --dark: #000926; /* Deep Navy */
+            --accent: #A6C5D7; /* Powder Blue */
+            --glass: rgba(255, 255, 255, 0.65);
+            --shadow: 0 10px 30px -10px rgba(0, 9, 38, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--dark);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(166, 197, 215, 0.5) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(15, 82, 186, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* --- Header --- */
+        nav {
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -1px;
+            text-decoration: none;
+        }
+
+        /* --- Hero --- */
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            line-height: 1.1;
+            margin-bottom: 15px;
+            background: -webkit-linear-gradient(45deg, var(--dark), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p { color: #576b8a; font-size: 1.1rem; }
+
+        /* --- Search & Filters --- */
+        .controls {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .search-box {
+            background: var(--card-bg);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1px solid var(--accent);
+            transition: all 0.3s;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 4px 25px rgba(15, 82, 186, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cat-btn {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid transparent;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--dark);
+            transition: all 0.2s;
+        }
+
+        .cat-btn:hover, .cat-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(15, 82, 186, 0.3);
+        }
+
+        /* --- Grid System --- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 9, 38, 0.15);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 4px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.4s;
+            transform-origin: left;
+        }
+        .card:hover::after { transform: scaleX(1); }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            line-height: 1.3;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .card p {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 20px;
+            margin-top: auto;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .read-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        /* --- Blueprint Reader (Modal) --- */
+        .modal-wrap {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 9, 38, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            padding: 20px;
+        }
+
+        .modal-wrap.active { opacity: 1; pointer-events: all; }
+
+        .modal {
+            background: white;
+            width: 100%;
+            max-width: 850px;
+            height: 90vh;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+
+        .modal-wrap.active .modal { transform: scale(1); }
+
+        .modal-head {
+            padding: 25px 30px;
+            background: white;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 10;
+        }
+
+        .modal-title-group h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            line-height: 1.2;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            background: var(--bg-color);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--dark);
+            transition: background 0.2s;
+            flex-shrink: 0;
+            margin-left: 15px;
+        }
+        .close-btn:hover { background: var(--accent); }
+
+        .modal-body {
+            padding: 40px;
+            overflow-y: auto;
+            flex-grow: 1;
+            scroll-behavior: smooth;
+        }
+
+        .blueprint-text {
+            white-space: pre-wrap;
+            line-height: 1.9;
+            font-size: 1.1rem;
+            color: #334155;
+        }
+
+        .modal-foot {
+            padding: 20px 30px;
+            border-top: 1px solid #f1f5f9;
+            background: #fafbfc;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(15, 82, 186, 0.3); }
+        .btn-primary:hover { background: var(--dark); transform: translateY(-2px); }
+        
+        .btn-secondary { background: white; border: 1px solid var(--accent); color: var(--dark); }
+        .btn-secondary:hover { background: var(--bg-color); }
+
+        /* Mobile Adjustments */
+        @media(max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .grid { grid-template-columns: 1fr; }
+            .modal { height: 100vh; border-radius: 0; }
+            .modal-body { padding: 25px; }
+        }
+
+        /* Loader */
+        .loader {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 60px;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="logo">
+            <i class="fas fa-layer-group"></i> Zeb Ideal
+        </a>
+        <a href="contact.html" style="color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+            Contact Us
+        </a>
+    </nav>
+
+    <header class="hero">
+        <h1>Startup Blueprints<br>for the Visionary</h1>
+        <p>Explore detailed startup ideas, business models, and future concepts.</p>
+    </header>
+
+    <div class="controls">
+        <!-- Search Bar -->
+        <div class="search-box">
+            <i class="fas fa-search" style="color: #94a3b8;"></i>
+            <input type="text" id="search-input" placeholder="Find an idea (e.g., 'Solar', 'AI', 'Health')...">
+        </div>
+
+        <!-- Filter Categories -->
+        <div class="categories">
+            <button class="cat-btn active" data-filter="all">All</button>
+            <button class="cat-btn" data-filter="Tech">Tech</button>
+            <button class="cat-btn" data-filter="Health">Health</button>
+            <button class="cat-btn" data-filter="Finance">Finance</button>
+            <button class="cat-btn" data-filter="Food">Food</button>
+            <button class="cat-btn" data-filter="Social">Social</button>
+            <button class="cat-btn" data-filter="Other">Other</button>
+        </div>
+    </div>
+
+    <!-- Ideas Grid -->
+    <div id="grid-container" class="grid">
+        <div class="loader"><i class="fas fa-spinner fa-spin"></i> Loading Blueprints...</div>
+    </div>
+
+    <!-- Enhanced Blueprint Modal -->
+    <div class="modal-wrap" id="modal-wrap">
+        <div class="modal">
+            <div class="modal-head">
+                <div style="flex: 1;">
+                    <span class="modal-badge" id="m-cat">CATEGORY</span>
+                    <h2 id="m-title">Idea Title</h2>
+                    <div style="margin-top: 5px; color: #64748b; font-size: 0.9rem;">
+                        By <span id="m-author" style="color: var(--primary); font-weight: 600;">Author</span> &bull; <span id="m-date">Date</span>
+                    </div>
+                </div>
+                <button class="close-btn" id="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="modal-body">
+                <div id="m-desc" class="blueprint-text">
+                    <!-- Description injects here -->
+                </div>
+            </div>
+
+            <div class="modal-foot">
+                <button class="btn btn-secondary" onclick="copyLink()">
+                    <i class="fas fa-link"></i> Copy Link
+                </button>
+                <button class="btn btn-primary" id="share-native">
+                    <i class="fas fa-share-alt"></i> Share Idea
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 40px; color: #64748b; font-size: 0.9rem;">
+        <p>&copy; 2026 Zeb Ideal. Developed by <strong>
+            <!--Tab to edit-->: Ajex Web
+        </strong> <a href="https://instagram.com/ajexweb"  class="info-card">
+        <div class="icon-box"><i class="fab fa-instagram"></i></div>
+        <div class="info-text">
+            <h3>Follow on Instagram</h3>
+            <p>Ajex Web</p>
+        </div>
+    </a></p>
+    </footer>
+
+    <!-- Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkcBlyH2QPPZtGN5t9eqYmuQ_E9dGo4b0",
+            authDomain: "fir-bf6f1.firebaseapp.com",
+            databaseURL: "https://fir-bf6f1-default-rtdb.firebaseio.com",
+            projectId: "fir-bf6f1",
+            storageBucket: "fir-bf6f1.firebasestorage.app",
+            messagingSenderId: "432545170995",
+            appId: "1:432545170995:web:b6deccf31b79eb6ef1c546"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // State
+        let allIdeas = [];
+        let currentIdea = null;
+
+        // Elements
+        const grid = document.getElementById('grid-container');
+        const searchInput = document.getElementById('search-input');
+        const filterBtns = document.querySelectorAll('.cat-btn');
+        const modalWrap = document.getElementById('modal-wrap');
+
+        // Fetch Data
+        onValue(ref(db, 'ideas'), (snapshot) => {
+            const data = snapshot.val();
+            if (!data) {
+                grid.innerHTML = '<div class="loader">No ideas found. Be the first to upload!</div>';
+                return;
+            }
+            // Convert to array and sort new -> old
+            allIdeas = Object.entries(data).map(([id, val]) => ({ id, ...val })).reverse();
+            filterAndRender();
+        });
+
+        // Filter Logic
+        let activeCategory = 'all';
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeCategory = btn.dataset.filter;
+                filterAndRender();
+            });
+        });
+
+        searchInput.addEventListener('input', filterAndRender);
+
+        function filterAndRender() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            const filtered = allIdeas.filter(idea => {
+                const matchesCat = activeCategory === 'all' || idea.category === activeCategory;
+                const matchesSearch = idea.title.toLowerCase().includes(searchTerm) || 
+                                      idea.description.toLowerCase().includes(searchTerm);
+                return matchesCat && matchesSearch;
+            });
+
+            render(filtered);
+        }
+
+        function calculateReadTime(text) {
+            const wordsPerMinute = 200;
+            const words = text.trim().split(/\s+/).length;
+            const time = Math.ceil(words / wordsPerMinute);
+            return `${time} min read`;
+        }
+
+        function formatDate(timestamp) {
+            if(!timestamp) return 'Recently';
+            return new Date(timestamp).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric'
+            });
+        }
+
+        function render(ideas) {
+            grid.innerHTML = "";
+            if(ideas.length === 0) {
+                grid.innerHTML = '<div class="loader">No matching ideas found.</div>';
+                return;
+            }
+
+            ideas.forEach(idea => {
+                const dateStr = formatDate(idea.timestamp);
+                const readTime = calculateReadTime(idea.description);
+
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.innerHTML = `
+                    <div class="card-top">
+                        <span>${idea.category}</span>
+                        <span>${dateStr}</span>
+                    </div>
+                    <h3>${idea.title}</h3>
+                    <p>${idea.description}</p>
+                    <div class="card-meta">
+                        <span style="font-weight:600; color:var(--primary)">
+                            <i class="fas fa-user-circle"></i> ${idea.author || 'Anonymous'}
+                        </span>
+                        <div class="read-time"><i class="far fa-clock"></i> ${readTime}</div>
+                    </div>
+                `;
+                el.onclick = () => openModal(idea, dateStr);
+                grid.appendChild(el);
+            });
+        }
+
+        // Modal Logic
+        function openModal(idea, dateStr) {
+            currentIdea = idea;
+            document.getElementById('m-cat').innerText = idea.category;
+            document.getElementById('m-title').innerText = idea.title;
+            document.getElementById('m-author').innerText = idea.author || 'Anonymous';
+            document.getElementById('m-date').innerText = dateStr;
+            document.getElementById('m-desc').innerText = idea.description;
+            
+            modalWrap.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modalWrap.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('close-modal').onclick = closeModal;
+        modalWrap.onclick = (e) => { if(e.target === modalWrap) closeModal(); }
+
+        // Share & Copy
+        window.copyLink = () => {
+            navigator.clipboard.writeText(window.location.href);
+            alert("Link copied to clipboard!");
+        };
+
+        document.getElementById('share-native').onclick = async () => {
+            if (!currentIdea) return;
+            const shareData = {
+                title: currentIdea.title,
+                text: `Read this startup idea on Zeb Ideal: ${currentIdea.title}`,
+                url: window.location.href
+            };
+            try { await navigator.share(shareData); } 
+            catch (err) { copyLink(); }
+        };
+    </script>
+</body>
+</html>
